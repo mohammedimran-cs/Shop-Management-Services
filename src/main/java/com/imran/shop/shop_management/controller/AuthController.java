@@ -12,6 +12,7 @@ import com.imran.shop.shop_management.service.UserDetailsImp;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -74,10 +75,10 @@ public class AuthController {
     public ResponseEntity<ApiResponse> verify(@Valid @RequestParam Token token) {
 
         User user = (User) userRepository.findByVerificationToken(token.token())
-                .orElseThrow(() -> new InvalidTokenException("Invalid token"));
+                .orElseThrow(() -> new InvalidTokenException("Link is invalid. Please generate a new one."));
 
         if (user.getVerificationTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new InvalidTokenException("Verification link expired. Please request a new one.");
+            throw new InvalidTokenException("Verification link expired. Please generate a new one.");
         }
 
         user.setEnabled(true);
@@ -95,13 +96,17 @@ public class AuthController {
     public ResponseEntity<ApiResponse> resend(@Valid @RequestBody EmailRequest email) {
 
         User user = userRepository.findByEmail(email.email())
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("Email is not registered"));
+
+        if(user.isEnabled()){
+            throw new UserNotFoundException("This account is already enabled");
+        }
 
         user.setVerificationToken(UUID.randomUUID().toString());
         user.setVerificationTokenExpiry(LocalDateTime.now().plusMinutes(30));
         userRepository.save(user);
 
-        String link = ".../verify?token=" + user.getVerificationToken();
+        String link = "http://localhost:5173/verify?token=" + user.getVerificationToken();
         emailService.sendVerificationEmail(user.getEmail(), link);
 
         return ResponseEntity.ok(
@@ -169,7 +174,8 @@ public class AuthController {
         return ResponseEntity.ok(Map.of(
                 "token", token,
                 "email", user.getUsername(),
-                "role", user.getAuthorities()
+                "role", user.getAuthorities(),
+                "enabled", user.getEnabled()
         ));
     }
 

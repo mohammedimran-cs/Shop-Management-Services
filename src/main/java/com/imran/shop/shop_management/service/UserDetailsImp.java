@@ -32,6 +32,10 @@ public class UserDetailsImp implements UserDetails {
         return user.getEmail();
     }
 
+    public Boolean getEnabled(){
+        return user.isEnabled();
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

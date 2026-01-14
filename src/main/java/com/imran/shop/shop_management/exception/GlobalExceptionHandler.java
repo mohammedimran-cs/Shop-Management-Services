@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(new ApiResponse("input error",errors));
     }
 
-    @ExceptionHandler(Exception.class)
+//    @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleGeneral(Exception ex) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
