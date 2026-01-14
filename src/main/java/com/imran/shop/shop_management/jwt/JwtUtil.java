@@ -4,6 +4,7 @@ import com.imran.shop.shop_management.service.UserDetailsImp;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -11,7 +12,8 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "my-super-secret-key-my-super-secret-key";
+    @Value("${jwt.secret}")
+    private String SECRET;
 
     public String generateToken(UserDetailsImp user) {
         return Jwts.builder()
