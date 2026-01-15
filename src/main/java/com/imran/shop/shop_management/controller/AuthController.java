@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -47,10 +48,25 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@Valid @RequestBody UserDto userDto) {
 
-        if (userRepository.existsByEmail(userDto.email()))
+        if (userRepository.existsByEmail(userDto.email())){
+            User checkUser = userRepository.findByEmail(userDto.email()).get();
+            if(checkUser.isEnabled()){
+                return ResponseEntity.badRequest().body(
+                        new ApiResponse("registered","This email already hava an account")
+                );
+            }
+           LocalDateTime tokenExpire = userRepository.findByEmail(userDto.email()).get().getVerificationTokenExpiry();
+           boolean check = true;
+           if(tokenExpire.isBefore(LocalDateTime.now())){
+               check = false;
+           }
             return ResponseEntity.badRequest().body(
-                    new ApiResponse("error", "email already exist")
+                    new ApiResponse(
+                            "error",check
+                    )
             );
+        }
+
         User user = new User();
         user.setUserName(userDto.userName());
         user.setEmail(userDto.email());
@@ -119,13 +135,13 @@ public class AuthController {
     public ResponseEntity<ApiResponse> forgot(@Valid @RequestBody EmailRequest email) {
 
         User user = userRepository.findByEmail(email.email())
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("Email not found"));
 
         user.setResetToken(UUID.randomUUID().toString());
         user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(30));
         userRepository.save(user);
 
-        String link = "http://localhost:8080/api/auth/reset?token=" + user.getResetToken();
+        String link = "http://localhost:5173/reset/" + user.getResetToken();
         emailService.sendPasswordResetEmail(user.getEmail(), link);
 
         return ResponseEntity.ok(

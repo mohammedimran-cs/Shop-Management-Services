@@ -35,6 +35,7 @@ public class EmailService {
                    Verify Email
                 </a>
                 <p>If you did not sign up, ignore this email.</p>
+                <p>This link expires in 30 minutes.</p>
             </div>
             """.formatted(link);
 
@@ -57,7 +58,7 @@ public class EmailService {
             String html = """
               <h2>Password Reset</h2>
               <p>Click the button to reset your password:</p>
-              <a href="%s" style="padding:10px;background:#f44336;color:white">
+              <a href="%s" style="padding:10px;background:#4CAF50;color:white">
                  Reset Password
               </a>
               <p>This link expires in 30 minutes.</p>
