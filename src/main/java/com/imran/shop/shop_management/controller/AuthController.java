@@ -71,7 +71,7 @@ public class AuthController {
         user.setUserName(userDto.userName());
         user.setEmail(userDto.email());
         user.setPassword(passwordEncoder.encode(userDto.password()));
-        user.setRole(Role.ROLE_USER);
+        user.setRole(Role.ROLE_ADMIN);
         user.setEnabled(false);
         user.setVerificationToken(UUID.randomUUID().toString());
         user.setVerificationTokenExpiry(LocalDateTime.now().plusMinutes(30));
@@ -193,21 +193,6 @@ public class AuthController {
                 "role", user.getAuthorities(),
                 "enabled", user.getEnabled()
         ));
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-
-        ResponseCookie cookie = ResponseCookie.from("jwt", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)   // delete cookie
-                .build();
-
-        response.addHeader("Set-Cookie", cookie.toString());
-
-        return ResponseEntity.ok("Logged out");
     }
 
     @GetMapping("/me")

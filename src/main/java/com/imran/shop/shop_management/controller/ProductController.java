@@ -1,14 +1,54 @@
 package com.imran.shop.shop_management.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.imran.shop.shop_management.DTO.ProductRequest;
+import com.imran.shop.shop_management.DTO.ProductResponse;
+import com.imran.shop.shop_management.entity.Product;
+import com.imran.shop.shop_management.service.ProductService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/admin/")
+@RequestMapping("/api/products")
 public class ProductController {
-    @GetMapping("product")
-    public String product(){
-        return "this is the product";
+
+    @Autowired
+    private ProductService productService;
+
+    @PostMapping
+    public ProductResponse addProduct(@Valid @RequestBody ProductRequest req) {
+        return productService.addProduct(req);
+    }
+
+    @GetMapping
+    public List<ProductResponse> getAllProducts() {
+        return productService.getAllProducts();
+    }
+
+    @PutMapping("/{id}")
+    public ProductResponse updateProduct(
+            @PathVariable Long id,
+            @RequestBody ProductRequest req) {
+
+        return productService.updateProduct(id, req);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+    }
+
+    @GetMapping("/{name}")
+    public List<ProductResponse> search(@PathVariable String name) {
+        return productService.searchByName(name);
+    }
+
+    @GetMapping("/category/{name}")
+    public List<ProductResponse> byCategory(@PathVariable String name) {
+        return productService.getByCategory(name);
     }
 }
+
