@@ -26,7 +26,7 @@ public class ProductService {
         Category category = categoryRepo.findById(req.categoryId())
                 .orElseThrow(() -> new UserNotFoundException("Category not found"));
 
-        if(!productRepo.findByNameContainingIgnoreCase(req.name()).isEmpty()){
+        if(productRepo.findByName(req.name()).isPresent()){
             throw new UserNotFoundException("This product name is already exist");
         }
 
