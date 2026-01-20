@@ -43,6 +43,8 @@ public class AuthController {
     private JwtUtil jwtUtil;
     @Autowired
     private EmailService emailService;
+    @Value("${ui.url}")
+    private String url;
 
     // REGISTER
     @PostMapping("/register")
@@ -78,7 +80,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        String link = "http://localhost:5173/verify?token=" + user.getVerificationToken();
+        String link = url+"/verify?token=" + user.getVerificationToken();
         emailService.sendVerificationEmail(user.getEmail(), link);
 
         return ResponseEntity.ok(
@@ -122,7 +124,7 @@ public class AuthController {
         user.setVerificationTokenExpiry(LocalDateTime.now().plusMinutes(30));
         userRepository.save(user);
 
-        String link = "http://localhost:5173/verify?token=" + user.getVerificationToken();
+        String link = url+"/verify?token=" + user.getVerificationToken();
         emailService.sendVerificationEmail(user.getEmail(), link);
 
         return ResponseEntity.ok(
@@ -141,7 +143,7 @@ public class AuthController {
         user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(30));
         userRepository.save(user);
 
-        String link = "http://localhost:5173/reset/" + user.getResetToken();
+        String link = url+"/reset/" + user.getResetToken();
         emailService.sendPasswordResetEmail(user.getEmail(), link);
 
         return ResponseEntity.ok(
