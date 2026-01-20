@@ -45,7 +45,7 @@ public class ProductService {
         Category category = categoryRepo.findById(req.categoryId())
                 .orElseThrow(() -> new UserNotFoundException("Category not found"));
 
-        if(!productRepo.findByNameContainingIgnoreCaseAndUserId(req.name(),userId).isEmpty()){
+        if(!productRepo.findByNameIgnoreCaseAndUserId(req.name(),userId).isEmpty()){
             throw new UserNotFoundException("This product name is already exist");
         }
 
@@ -91,12 +91,17 @@ public class ProductService {
     }
 
     public ProductResponse updateProduct(Long id, ProductRequest req) {
+        Long userId = getLoggedInUserId();
 
         Product existing = productRepo.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Product not found"));
 
         Category category = categoryRepo.findById(req.categoryId())
                 .orElseThrow(() -> new UserNotFoundException("Category not found"));
+
+        if(!productRepo.findByNameIgnoreCaseAndUserId(req.name(),userId).isEmpty()){
+            throw new UserNotFoundException("This product name is already exist");
+        }
 
         existing.setName(req.name());
         existing.setPrice(req.price());
@@ -125,7 +130,7 @@ public class ProductService {
 
     public List<ProductResponse> searchByName(String name) {
         Long userId = getLoggedInUserId();
-        return productRepo.findByNameContainingIgnoreCaseAndUserId(name,userId)
+        return productRepo.findByNameIgnoreCaseAndUserId(name,userId)
                 .stream()
                 .map(p -> new ProductResponse(
                         p.getId(),

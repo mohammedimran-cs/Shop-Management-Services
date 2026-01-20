@@ -31,7 +31,7 @@ public class CategoryService {
 
     public CategoryResponse saveCategory(CategoryRequest categoryRequest) {
         Long userId = getLoggedInUserId();
-        if(!categoryRepo.findByNameContainingIgnoreCaseAndUserId(categoryRequest.name(),userId).isEmpty()){
+        if(!categoryRepo.findByNameIgnoreCaseAndUserId(categoryRequest.name(),userId).isEmpty()){
             throw new UserNotFoundException("Category name already exist");
         }
         Category category = new Category();
@@ -53,10 +53,14 @@ public class CategoryService {
     }
 
     public CategoryResponse updateCategory(Long id, CategoryRequest request) {
-
+        Long userId = getLoggedInUserId();
         Category category = categoryRepo.findById(id)
                 .orElseThrow(() ->
                         new UserNotFoundException("Category not found"));
+
+        if(!categoryRepo.findByNameIgnoreCaseAndUserId(request.name(),userId).isEmpty()){
+            throw new UserNotFoundException("Category name already exist");
+        }
 
         category.setName(request.name());
 

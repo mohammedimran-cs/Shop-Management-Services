@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface CategoryRepository extends JpaRepository<Category,Long> {
     Optional<Category> findByName(String name);
     List<Category> findByUserId(Long id);
-    List<Category> findByNameContainingIgnoreCaseAndUserId(String name,Long userId);
+    List<Category> findByNameIgnoreCaseAndUserId(String name,Long userId);
 }
