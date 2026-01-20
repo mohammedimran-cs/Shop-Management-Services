@@ -3,9 +3,12 @@ package com.imran.shop.shop_management.controller;
 import com.imran.shop.shop_management.DTO.CategoryRequest;
 import com.imran.shop.shop_management.DTO.CategoryResponse;
 import com.imran.shop.shop_management.entity.Category;
+import com.imran.shop.shop_management.exception.UserNotFoundException;
 import com.imran.shop.shop_management.service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

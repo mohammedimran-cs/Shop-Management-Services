@@ -7,7 +7,10 @@ import com.imran.shop.shop_management.entity.Product;
 import com.imran.shop.shop_management.exception.UserNotFoundException;
 import com.imran.shop.shop_management.repository.CategoryRepository;
 import com.imran.shop.shop_management.repository.ProductRepository;
+import com.imran.shop.shop_management.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,12 +24,28 @@ public class ProductService {
     @Autowired
     private CategoryRepository categoryRepo;
 
+    @Autowired
+    private UserRepo userRepo;
+
+    private Long getLoggedInUserId() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        return userRepo.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"))
+                .getId();
+    }
+
+
     public ProductResponse addProduct(ProductRequest req) {
+
+        Long userId = getLoggedInUserId();
 
         Category category = categoryRepo.findById(req.categoryId())
                 .orElseThrow(() -> new UserNotFoundException("Category not found"));
 
-        if(productRepo.findByName(req.name()).isPresent()){
+        if(!productRepo.findByNameContainingIgnoreCaseAndUserId(req.name(),userId).isEmpty()){
             throw new UserNotFoundException("This product name is already exist");
         }
 
@@ -37,6 +56,7 @@ public class ProductService {
         p.setStock(req.stock());
         p.setBarcode(req.barcode());
         p.setCategory(category);
+        p.setUserId(userId);
 
         Product saved = productRepo.save(p);
 
@@ -53,7 +73,9 @@ public class ProductService {
     }
 
     public List<ProductResponse> getAllProducts() {
-        return productRepo.findAll()
+        Long userId = getLoggedInUserId();
+
+        return  productRepo.findByUserId(userId)
                 .stream()
                 .map(p -> new ProductResponse(
                         p.getId(),
@@ -102,7 +124,8 @@ public class ProductService {
     }
 
     public List<ProductResponse> searchByName(String name) {
-        return productRepo.findByNameContainingIgnoreCase(name)
+        Long userId = getLoggedInUserId();
+        return productRepo.findByNameContainingIgnoreCaseAndUserId(name,userId)
                 .stream()
                 .map(p -> new ProductResponse(
                         p.getId(),

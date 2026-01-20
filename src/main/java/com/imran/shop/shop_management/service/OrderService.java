@@ -9,7 +9,10 @@ import com.imran.shop.shop_management.entity.Product;
 import com.imran.shop.shop_management.exception.UserNotFoundException;
 import com.imran.shop.shop_management.repository.OrderRepository;
 import com.imran.shop.shop_management.repository.ProductRepository;
+import com.imran.shop.shop_management.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,12 +27,25 @@ public class OrderService {
 
     @Autowired
     private ProductRepository productRepo;
+    @Autowired
+    private UserRepo userRepo;
+    private Long getLoggedInUserId() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        return userRepo.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"))
+                .getId();
+    }
 
     public OrderResponse createOrder(OrderRequest req, String username) {
+        Long userId = getLoggedInUserId();
 
         Order order = new Order();
         order.setBillDate(LocalDateTime.now());
         order.setCreatedBy(username);
+        order.setUserId(userId);
 
         double total = 0.0;
         List<OrderItem> orderItems = new ArrayList<>();
@@ -49,6 +65,7 @@ public class OrderService {
             item.setProduct(product);
             item.setQuantity(itemReq.qty());
             item.setPrice(product.getPrice());
+            item.setUserId(userId);
 
             orderItems.add(item);
 
