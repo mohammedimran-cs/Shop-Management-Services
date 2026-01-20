@@ -58,10 +58,6 @@ public class CategoryService {
                 .orElseThrow(() ->
                         new UserNotFoundException("Category not found"));
 
-        if(!categoryRepo.findByNameIgnoreCaseAndUserId(request.name(),userId).isEmpty()){
-            throw new UserNotFoundException("Category name already exist");
-        }
-
         category.setName(request.name());
 
         Category updated = categoryRepo.save(category);

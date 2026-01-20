@@ -99,10 +99,6 @@ public class ProductService {
         Category category = categoryRepo.findById(req.categoryId())
                 .orElseThrow(() -> new UserNotFoundException("Category not found"));
 
-        if(!productRepo.findByNameIgnoreCaseAndUserId(req.name(),userId).isEmpty()){
-            throw new UserNotFoundException("This product name is already exist");
-        }
-
         existing.setName(req.name());
         existing.setPrice(req.price());
         existing.setWholeSalePrice(req.wholeSalePrice());
