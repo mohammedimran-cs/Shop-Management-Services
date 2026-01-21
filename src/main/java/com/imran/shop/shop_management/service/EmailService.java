@@ -19,7 +19,7 @@ public class EmailService {
             MimeMessageHelper helper =
                     new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("Shop Management <imran09cs@gmail.com>");
+            helper.setFrom("Shop Management <a08098001@smtp-brevo.com>");
             helper.setTo(to);
             helper.setSubject("Verify your Shop Management Account");
 
@@ -51,7 +51,7 @@ public class EmailService {
             MimeMessageHelper helper =
                     new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("Shop Management <imran09cs@gmail.com>");
+            helper.setFrom("Shop Management <a08098001@smtp-brevo.com>");
             helper.setTo(to);
             helper.setSubject("Reset your password");
 
