@@ -81,7 +81,23 @@ public class AuthController {
         userRepository.save(user);
 
         String link = url+"/verify?token=" + user.getVerificationToken();
-        emailService.sendVerificationEmail(user.getEmail(), link);
+        String html = """
+            <div style="font-family: Arial; padding:20px">
+                <h2>Welcome to Shop Management</h2>
+                <p>Thank you for creating an account.</p>
+                <p>Please click the button below to verify your email:</p>
+                <a href="%s"
+                   style="display:inline-block;padding:12px 20px;
+                          background:#4CAF50;color:white;
+                          text-decoration:none;border-radius:5px;">
+                   Verify Email
+                </a>
+                <p>If you did not sign up, ignore this email.</p>
+                <p>This link expires in 30 minutes.</p>
+            </div>
+            """.formatted(link);
+        String subject = "Verify your Shop Management Account";
+        emailService.sendEmail(user.getEmail(), subject, html);
 
         return ResponseEntity.ok(
                 new ApiResponse("success",
@@ -125,7 +141,23 @@ public class AuthController {
         userRepository.save(user);
 
         String link = url+"/verify?token=" + user.getVerificationToken();
-        emailService.sendVerificationEmail(user.getEmail(), link);
+        String html = """
+            <div style="font-family: Arial; padding:20px">
+                <h2>Welcome to Shop Management</h2>
+                <p>Thank you for creating an account.</p>
+                <p>Please click the button below to verify your email:</p>
+                <a href="%s"
+                   style="display:inline-block;padding:12px 20px;
+                          background:#4CAF50;color:white;
+                          text-decoration:none;border-radius:5px;">
+                   Verify Email
+                </a>
+                <p>If you did not sign up, ignore this email.</p>
+                <p>This link expires in 30 minutes.</p>
+            </div>
+            """.formatted(link);
+        String subject = "Verify your Shop Management Account";
+        emailService.sendEmail(user.getEmail(), subject, html);
 
         return ResponseEntity.ok(
             new ApiResponse("success",
@@ -144,7 +176,15 @@ public class AuthController {
         userRepository.save(user);
 
         String link = url+"/reset/" + user.getResetToken();
-        emailService.sendPasswordResetEmail(user.getEmail(), link);
+        String html = """
+              <h2>Password Reset</h2>
+              <p>Click the button to reset your password:</p>
+              <a href="%s" style="padding:10px;background:#4CAF50;color:white">
+                 Reset Password
+              </a>
+              <p>This link expires in 30 minutes.</p>
+            """.formatted(link);
+        emailService.sendEmail(user.getEmail(),"Reset your password",html);
 
         return ResponseEntity.ok(
             new ApiResponse("success",

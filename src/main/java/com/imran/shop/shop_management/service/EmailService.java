@@ -1,75 +1,52 @@
 package com.imran.shop.shop_management.service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailService {
+    @Value("${brevo.api.key}")
+    private String apiKey;
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private static final String URL =
+            "https://api.brevo.com/v3/smtp/email";
 
-    public void sendVerificationEmail(String to, String link) {
+    public void sendEmail(String to, String subject, String html) {
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        System.out.println(apiKey);
+        headers.set("api-key", apiKey);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("sender", Map.of(
+                "email", "imran09cs@gmail.com",
+                "name", "Shop Management"
+        ));
+        body.put("to", List.of(Map.of("email", to)));
+        body.put("subject", subject);
+        body.put("htmlContent", html);
+
+        HttpEntity<Map<String, Object>> request =
+                new HttpEntity<>(body, headers);
+
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setFrom("Shop Management <a08098001@smtp-brevo.com>");
-            helper.setTo(to);
-            helper.setSubject("Verify your Shop Management Account");
-
-            String html = """
-            <div style="font-family: Arial; padding:20px">
-                <h2>Welcome to Shop Management</h2>
-                <p>Thank you for creating an account.</p>
-                <p>Please click the button below to verify your email:</p>
-                <a href="%s"
-                   style="display:inline-block;padding:12px 20px;
-                          background:#4CAF50;color:white;
-                          text-decoration:none;border-radius:5px;">
-                   Verify Email
-                </a>
-                <p>If you did not sign up, ignore this email.</p>
-                <p>This link expires in 30 minutes.</p>
-            </div>
-            """.formatted(link);
-
-            helper.setText(html, true);
-            mailSender.send(message);
+            restTemplate.postForEntity(URL, request, String.class);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Email sending failed: " + e.getMessage());
-        }
-    }
-    public void sendPasswordResetEmail(String to, String link) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setFrom("Shop Management <a08098001@smtp-brevo.com>");
-            helper.setTo(to);
-            helper.setSubject("Reset your password");
-
-            String html = """
-              <h2>Password Reset</h2>
-              <p>Click the button to reset your password:</p>
-              <a href="%s" style="padding:10px;background:#4CAF50;color:white">
-                 Reset Password
-              </a>
-              <p>This link expires in 30 minutes.</p>
-            """.formatted(link);
-
-            helper.setText(html, true);
-            mailSender.send(message);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Email sending failed: " + e.getMessage());
+            throw new RuntimeException(
+                    "Brevo API email failed: " + e.getMessage()
+            );
         }
     }
 
