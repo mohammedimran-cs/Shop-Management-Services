@@ -42,7 +42,8 @@ public class EmailService {
             helper.setText(html, true);
             mailSender.send(message);
         } catch (Exception e) {
-            throw new RuntimeException("Email sending failed");
+            e.printStackTrace();
+            throw new RuntimeException("Email sending failed: " + e.getMessage());
         }
     }
     public void sendPasswordResetEmail(String to, String link) {
@@ -67,7 +68,8 @@ public class EmailService {
             helper.setText(html, true);
             mailSender.send(message);
         } catch (Exception e) {
-            throw new RuntimeException("Email sending failed");
+            e.printStackTrace();
+            throw new RuntimeException("Email sending failed: " + e.getMessage());
         }
     }
 
